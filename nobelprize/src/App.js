@@ -6,6 +6,8 @@ class App extends React.Component {
     super(props);
     this.state = {
       prizeList: [],
+      filteredData: [],
+      filterApplied: false,
       loading: false,
       yearList: [
 
@@ -132,12 +134,17 @@ class App extends React.Component {
         1901
       ]
     };
-    this.getUserList = this.getUserList.bind(this);
+    this.getNoblePrizeList = this.getNoblePrizeList.bind(this);
     this.handleChangeCategory = this.handleChangeCategory.bind(this);
 
     this.handleChangeYear = this.handleChangeYear.bind(this);
+    this.cleareFilter = this.cleareFilter.bind(this);
+    this.getNoblePrizeList();
+  }
+  cleareFilter() {
+    this.getNoblePrizeList();
+    this.setState({ filterApplied: false, filteredData: [] });
 
-    this.getUserList();
   }
   handleChangeYear(e) {
     console.log(e.target.value)
@@ -147,10 +154,10 @@ class App extends React.Component {
       obj.year.trim() === e.target.value.trim()
     )
     console.log("filteredList", filteredList)
-    if (filteredList !== []) {
-      this.setState({ loading: false, prizeList: filteredList });
 
-    }
+    this.setState({ filterApplied: true, filteredData: filteredList });
+
+
     // this.setState({ loading: false, prizeList: finalObjectList });
   }
   handleChangeCategory(e) {
@@ -159,12 +166,10 @@ class App extends React.Component {
       obj.category.trim() === e.target.value.trim()
     )
     console.log("filteredList", filteredList)
-    if (filteredList !== []) {
-      this.setState({ loading: false, prizeList: filteredList });
+    this.setState({ filterApplied: true, filteredData: filteredList });
 
-    }
   }
-  getUserList() {
+  getNoblePrizeList() {
     this.setState({ loading: true });
     fetch("https://api.nobelprize.org/v1/prize.json")
       .then(res => res.json())
@@ -192,13 +197,13 @@ class App extends React.Component {
           finalObjectList.push(tempObj)
         }
         // setTimeout(() => {
-        this.setState({ loading: false, prizeList: finalObjectList });
+        this.setState({ prizeList: finalObjectList });
         // }, 2000);
       });
   }
 
   render() {
-    const { prizeList, loading, yearList } = this.state;
+    const { prizeList, loading, yearList, filterApplied, filteredData } = this.state;
 
     return (
       <div className="container App">
@@ -222,7 +227,7 @@ class App extends React.Component {
 
 
         <div>
-          <select defaultValue="chemistry"
+          <select defaultValue="2021"
             onChange={this.handleChangeYear}
           >
             {yearList.map(x => (
@@ -231,13 +236,14 @@ class App extends React.Component {
               <option value={x}>{x}</option>
 
             ))}
-            <option value="Orange">chemistry</option>
-            <option value="Radish">Radish</option>
-            <option value="Cherry">Cherry</option>
+
           </select>
           <p>Filter Year</p>
         </div>
 
+        <button onClick={this.cleareFilter}>
+          Clear Filter
+        </button>
         <div className="clearfix" />
 
         <table className="table mt-3">
@@ -248,14 +254,26 @@ class App extends React.Component {
             <th>Motivation</th>
           </thead>
           <tbody>
-            {prizeList.map(x => (
-              <tr>
-                <td>{x.category}</td>
-                <td>{x.year}</td>
-                <td>{x.fullName}</td>
-                <td>{x.motivation}</td>
-              </tr>
-            ))}
+            {
+              !filterApplied && prizeList.map(x => (
+                <tr>
+                  <td>{x.category}</td>
+                  <td>{x.year}</td>
+                  <td>{x.fullName}</td>
+                  <td>{x.motivation}</td>
+                </tr>
+              ))
+            }
+            {
+              filterApplied && filteredData.map(x => (
+                <tr>
+                  <td>{x.category}</td>
+                  <td>{x.year}</td>
+                  <td>{x.fullName}</td>
+                  <td>{x.motivation}</td>
+                </tr>
+              ))
+            }
             {prizeList.length == 0 && (
               <tr>
                 <td className="text-center" colSpan="4">
