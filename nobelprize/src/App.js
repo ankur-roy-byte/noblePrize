@@ -139,7 +139,17 @@ class App extends React.Component {
 
     this.handleChangeYear = this.handleChangeYear.bind(this);
     this.cleareFilter = this.cleareFilter.bind(this);
+    this.dataFrom1900To2018 = this.dataFrom1900To2018.bind(this);
+
+
     this.getNoblePrizeList();
+  }
+  dataFrom1900To2018() {
+    let filteredList = this.state.prizeList.filter(obj =>
+      parseInt(obj.year.trim()) >= 1900 && parseInt(obj.year.trim()) <= 2018
+    )
+    console.log("filteredList", filteredList)
+    this.setState({ filterApplied: true, filteredData: filteredList });
   }
   cleareFilter() {
     this.getNoblePrizeList();
@@ -247,6 +257,14 @@ class App extends React.Component {
             Clear Filter
           </button>
         </div>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div style={{ display: "inline-block" }}>
+          <button onClick={this.dataFrom1900To2018}>
+            Data Between Year 1900 - 2018
+          </button>
+        </div>
+
         <br></br>
         <hr></hr>
         <div className="container App">
