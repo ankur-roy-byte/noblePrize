@@ -5,6 +5,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      originalData: [],
       prizeList: [],
       filteredData: [],
       filterApplied: false,
@@ -142,31 +143,53 @@ class App extends React.Component {
     this.cleareFilter = this.cleareFilter.bind(this);
     this.dataFrom1900To2018 = this.dataFrom1900To2018.bind(this);
     this.fourPeople = this.fourPeople.bind(this);
+    this.removeExtraChar = this.removeExtraChar.bind(this);
+
 
     this.getNoblePrizeList();
 
   }
+  removeExtraChar(data) {
+    // if (data !== undefined && data !== null) {
+    //   data.replace("\"", "");
+
+    // } else {
+    return data
+    // }
+  }
   fourPeople() {
     let fourPeopleList = [];
     let object = {};
-    console.log("this.state.prizeList ====", this.state.prizeList)
-    for (const element of this.state.prizeList) {
+    console.log("this.state.originalData ====", this.state.originalData)
+    for (const element of this.state.originalData) {
       // if (element.fullName === "Marie Curie") {
-      console.log("element.fullName ", element.fullName)
+      // console.log("element.fullName ", element.fullName)
       // }
-      if (element.fullName in object) {
-        if (element.fullName !== "NONE" && element.fullName !== undefined) {
-          fourPeopleList.push(element)
+      if (element.laureates !== undefined) {
 
+
+        for (const itemL of element.laureates) {
+          const fullName = itemL.firstname + " " + itemL.surname
+
+          if (fullName in object) {
+            if (fullName !== "NONE" && fullName !== undefined && fullName.split(" ").length === 2) {
+              element["fullName"] = fullName
+              element["motivation"] = itemL.motivation
+
+
+              fourPeopleList.push(element)
+
+            }
+          } else {
+            object[fullName] = 1;
+
+          }
         }
-        object[element.fullName] = object[element.fullName] + 1;
-      } else {
-        object[element.fullName] = 1;
       }
+
 
     }
 
-    console.log("filteredList fourPeopleList", object)
     this.setState({ fourPeople: fourPeopleList });
   }
   dataFrom1900To2018() {
@@ -215,31 +238,33 @@ class App extends React.Component {
       .then(res => {
         let finalObjectList = []
         let prizesList = res.prizes
+        this.setState({ originalData: prizesList });
+        setTimeout(() => {
+          this.fourPeople();
+        }, 2000);
         for (let i = 0; i < prizesList.length; i++) {
           let tempObj = {};
           tempObj["year"] = prizesList[i].year
           tempObj["category"] = prizesList[i].category
-          if (prizesList[i].year === "1956") {
-            console.log("_______________________========================================", prizesList[i])
-          }
+
           let laureates = prizesList[i].laureates
           if (laureates !== undefined) {
             for (let j = 0; j < laureates.length; j++) {
               tempObj["fullName"] = laureates[j].firstname + " " + laureates[j].surname
               tempObj["motivation"] = laureates[j].motivation
+              finalObjectList.push(tempObj)
             }
           } else {
             tempObj["fullName"] = "NONE"
             tempObj["motivation"] = "NONE"
+            finalObjectList.push(tempObj)
           }
+          // console.log("finalObjectList ===============", finalObjectList)
 
-          finalObjectList.push(tempObj)
         }
         this.setState({ prizeList: finalObjectList });
 
-        setTimeout(() => {
-          this.fourPeople();
-        }, 200);
+
       });
   }
 
@@ -313,7 +338,7 @@ class App extends React.Component {
                     <td>{x.category}</td>
                     <td>{x.year}</td>
                     <td>{x.fullName}</td>
-                    <td>{x.motivation}</td>
+                    <td>{this.removeExtraChar(x.motivation)}</td>
                   </tr>
                 ))
               }
@@ -321,7 +346,7 @@ class App extends React.Component {
             </tbody>
           </table>
 
-         
+
 
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           {/* <p style={{ display: "inline-block" }}>Filter Year</p> */}
