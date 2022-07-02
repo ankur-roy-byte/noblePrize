@@ -206,10 +206,9 @@ class App extends React.Component {
     const { prizeList, loading, yearList, filterApplied, filteredData } = this.state;
 
     return (
-      <div className="container App">
+      <div>
         <h1 className="d-inline-block">Nobel Prize Data</h1>
-
-        <div>
+        <div style={{ display: "inline-block" }}>
           <select defaultValue="chemistry"
             onChange={this.handleChangeCategory}
           >
@@ -222,11 +221,12 @@ class App extends React.Component {
 
 
           </select>
-          <p>Filter Category</p>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <p style={{ display: "inline-block" }}>Filter Category</p>
         </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-
-        <div>
+        <div style={{ display: "inline-block" }}>
           <select defaultValue="2021"
             onChange={this.handleChangeYear}
           >
@@ -238,53 +238,64 @@ class App extends React.Component {
             ))}
 
           </select>
-          <p>Filter Year</p>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <p style={{ display: "inline-block" }}>Filter Year</p>
         </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div style={{ display: "inline-block" }}>
+          <button onClick={this.cleareFilter}>
+            Clear Filter
+          </button>
+        </div>
+        <br></br>
+        <hr></hr>
+        <div className="container App">
 
-        <button onClick={this.cleareFilter}>
-          Clear Filter
-        </button>
-        <div className="clearfix" />
 
-        <table className="table mt-3">
-          <thead className="thead-dark">
-            <th>Category</th>
-            <th>Year</th>
-            <th>Full Name</th>
-            <th>Motivation</th>
-          </thead>
-          <tbody>
-            {
-              !filterApplied && prizeList.map(x => (
+
+
+          <div className="clearfix" />
+
+          <table className="table mt-3">
+            <thead className="thead-dark">
+              <th>Category</th>
+              <th>Year</th>
+              <th>Full Name</th>
+              <th>Motivation</th>
+            </thead>
+            <tbody>
+              {
+                !filterApplied && prizeList.map(x => (
+                  <tr>
+                    <td>{x.category}</td>
+                    <td>{x.year}</td>
+                    <td>{x.fullName}</td>
+                    <td>{x.motivation}</td>
+                  </tr>
+                ))
+              }
+              {
+                filterApplied && filteredData.map(x => (
+                  <tr>
+                    <td>{x.category}</td>
+                    <td>{x.year}</td>
+                    <td>{x.fullName}</td>
+                    <td>{x.motivation}</td>
+                  </tr>
+                ))
+              }
+              {prizeList.length == 0 && (
                 <tr>
-                  <td>{x.category}</td>
-                  <td>{x.year}</td>
-                  <td>{x.fullName}</td>
-                  <td>{x.motivation}</td>
+                  <td className="text-center" colSpan="4">
+                    <b>Please Wait...</b>
+                  </td>
                 </tr>
-              ))
-            }
-            {
-              filterApplied && filteredData.map(x => (
-                <tr>
-                  <td>{x.category}</td>
-                  <td>{x.year}</td>
-                  <td>{x.fullName}</td>
-                  <td>{x.motivation}</td>
-                </tr>
-              ))
-            }
-            {prizeList.length == 0 && (
-              <tr>
-                <td className="text-center" colSpan="4">
-                  <b>Please Wait...</b>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
 
 
+        </div>
       </div>
     );
   }
