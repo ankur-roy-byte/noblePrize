@@ -9,6 +9,7 @@ class App extends React.Component {
       filteredData: [],
       filterApplied: false,
       loading: false,
+      fourPeople: [],
       yearList: [
 
         2021,
@@ -140,9 +141,33 @@ class App extends React.Component {
     this.handleChangeYear = this.handleChangeYear.bind(this);
     this.cleareFilter = this.cleareFilter.bind(this);
     this.dataFrom1900To2018 = this.dataFrom1900To2018.bind(this);
-
+    this.fourPeople = this.fourPeople.bind(this);
 
     this.getNoblePrizeList();
+
+  }
+  fourPeople() {
+    let fourPeopleList = [];
+    let object = {};
+    console.log("this.state.prizeList ====", this.state.prizeList)
+    for (const element of this.state.prizeList) {
+      // if (element.fullName === "Marie Curie") {
+      console.log("element.fullName ", element.fullName)
+      // }
+      if (element.fullName in object) {
+        if (element.fullName !== "NONE" && element.fullName !== undefined) {
+          fourPeopleList.push(element)
+
+        }
+        object[element.fullName] = object[element.fullName] + 1;
+      } else {
+        object[element.fullName] = 1;
+      }
+
+    }
+
+    console.log("filteredList fourPeopleList", object)
+    this.setState({ fourPeople: fourPeopleList });
   }
   dataFrom1900To2018() {
     let filteredList = this.state.prizeList.filter(obj =>
@@ -151,11 +176,13 @@ class App extends React.Component {
     console.log("filteredList", filteredList)
     this.setState({ filterApplied: true, filteredData: filteredList });
   }
+
   cleareFilter() {
     this.getNoblePrizeList();
     this.setState({ filterApplied: false, filteredData: [] });
 
   }
+
   handleChangeYear(e) {
     console.log(e.target.value)
     console.log(this.state.prizeList)
@@ -170,6 +197,7 @@ class App extends React.Component {
 
     // this.setState({ loading: false, prizeList: finalObjectList });
   }
+
   handleChangeCategory(e) {
     console.log(e.target.value, "this.state.prizeList", this.state.prizeList)
     let filteredList = this.state.prizeList.filter(obj =>
@@ -179,21 +207,22 @@ class App extends React.Component {
     this.setState({ filterApplied: true, filteredData: filteredList });
 
   }
+
   getNoblePrizeList() {
     this.setState({ loading: true });
     fetch("https://api.nobelprize.org/v1/prize.json")
       .then(res => res.json())
       .then(res => {
-        console.log("==================", res)
         let finalObjectList = []
         let prizesList = res.prizes
         for (let i = 0; i < prizesList.length; i++) {
           let tempObj = {};
           tempObj["year"] = prizesList[i].year
           tempObj["category"] = prizesList[i].category
-
+          if (prizesList[i].year === "1956") {
+            console.log("_______________________========================================", prizesList[i])
+          }
           let laureates = prizesList[i].laureates
-          console.log(": prizesList[i]", prizesList[i])
           if (laureates !== undefined) {
             for (let j = 0; j < laureates.length; j++) {
               tempObj["fullName"] = laureates[j].firstname + " " + laureates[j].surname
@@ -206,14 +235,16 @@ class App extends React.Component {
 
           finalObjectList.push(tempObj)
         }
-        // setTimeout(() => {
         this.setState({ prizeList: finalObjectList });
-        // }, 2000);
+
+        setTimeout(() => {
+          this.fourPeople();
+        }, 200);
       });
   }
 
   render() {
-    const { prizeList, loading, yearList, filterApplied, filteredData } = this.state;
+    const { prizeList, loading, yearList, filterApplied, filteredData, fourPeople } = this.state;
 
     return (
       <div>
@@ -242,7 +273,6 @@ class App extends React.Component {
           >
             {yearList.map(x => (
 
-              // <td>{x.category}</td>
               <option value={x}>{x}</option>
 
             ))}
@@ -264,7 +294,38 @@ class App extends React.Component {
             Data Between Year 1900 - 2018
           </button>
         </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <h3 className="d-inline-block">4 people who have won the nobel prize more than 1 time.</h3>
+        <div style={{ display: "inline-block" }}>
 
+          <table className="table mt-3">
+            <thead className="thead-dark">
+              <th>Category</th>
+              <th>Year</th>
+              <th>Full Name</th>
+              <th>Motivation</th>
+            </thead>
+            <tbody>
+
+              {
+                fourPeople.map(x => (
+                  <tr>
+                    <td>{x.category}</td>
+                    <td>{x.year}</td>
+                    <td>{x.fullName}</td>
+                    <td>{x.motivation}</td>
+                  </tr>
+                ))
+              }
+
+            </tbody>
+          </table>
+
+         
+
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          {/* <p style={{ display: "inline-block" }}>Filter Year</p> */}
+        </div>
         <br></br>
         <hr></hr>
         <div className="container App">
